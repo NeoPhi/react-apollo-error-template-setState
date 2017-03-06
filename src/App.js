@@ -1,47 +1,43 @@
 import React, { Component } from 'react';
-import gql from 'graphql-tag';
-import { graphql } from 'react-apollo';
+import Person from './Person';
+import createId from './id';
 
-class App extends Component {
+function randomize() {
+  const ids = [];
+  const include = Math.random() * 10;
+  while (ids.length < include) {
+    const id = createId();
+    if (!ids.includes(id)) {
+      ids.push(id);
+    }
+  }
+  return ids;
+}
+
+export default class App extends Component {
+  constructor(props, context) {
+    super(props, context);
+    this.state = {
+      ids: randomize(),
+    };
+  }
+
+  handleClick = () => {
+    this.setState({
+      ids: randomize(),
+    });
+  }
+
   render() {
-    const { data: { loading, people } } = this.props;
+    const people = this.state.ids.map((id) => <Person key={id} id={id} showFriend />);
+
     return (
       <main>
         <header>
-          <h1>Apollo Client Error Template</h1>
-          <p>
-            This is a template that you can use to demonstrate an error in Apollo Client.
-            Edit the source code and watch your browser window reload with the changes.
-          </p>
-          <p>
-            The code which renders this component lives in <code>./src/App.js</code>.
-          </p>
-          <p>
-            The GraphQL schema is in <code>./src/graphql/schema</code>.
-            Currently the schema just serves a list of people with names and ids.
-          </p>
+          <button onClick={this.handleClick}>Randomize</button>
         </header>
-        {loading ? (
-          <p>Loading…</p>
-        ) : (
-          <ul>
-            {people.map(person => (
-              <li key={person.id}>
-                {person.name}
-              </li>
-            ))}
-          </ul>
-        )}
+        {people}
       </main>
     );
   }
 }
-
-export default graphql(
-  gql`{
-    people {
-      id
-      name
-    }
-  }`,
-)(App)
